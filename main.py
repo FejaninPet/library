@@ -1,4 +1,12 @@
-def menu():
+from obj.objects import Library
+
+
+def enable_safe_mode():
+    # TODO
+    return True
+
+
+def menu(safe_mode):
     start = True
     menu_length = 6
     while start:
@@ -21,4 +29,5 @@ def menu():
 
 
 if __name__ == "__main__":
-    menu()
+    safe_mode = enable_safe_mode()
+    menu(safe_mode)
