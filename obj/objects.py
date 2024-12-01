@@ -4,7 +4,7 @@ from interface.interface import identify_os_sep
 
 class Book:
     __COUNT_OBJ = 0
-    STATUSES = ['в наличии', 'выдана']
+    STATUSES = ('в наличии', 'выдана')
 
     def __init__(self, title, author, year, status='в наличии'):
         self.id = self._set_id()
@@ -34,12 +34,12 @@ class Book:
 
 
 class Library:
-    def __init__(self, path_to_db, safe_mode=True):
+    def __init__(self, path_to_db, save_mode=True):
         self.path_to_db = path_to_db
         self.db = self.download_db(path_to_db)  # dict
-        self.save_mode = safe_mode
+        self.save_mode = save_mode
 
-    def download_db(self , path_to_db):
+    def download_db(self, path_to_db):
         books = {}
         with open(path_to_db, 'r') as f:
             for i in f:
