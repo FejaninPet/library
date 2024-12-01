@@ -1,4 +1,5 @@
 from datetime import datetime
+from interface.interface import identify_os_sep
 
 
 class Book:
@@ -14,7 +15,7 @@ class Book:
 
     def change_status(self):
         self.status = self.STATUSES[(self.STATUSES.index(self.status) + 1) % 2]
-        return f'Статус кинги изменен. Теперь она {self.status}.'
+        return f'Статус кинги "{self.title}" изменен. Теперь она {self.status}.'
 
     def __setattr__(self, key, value):
         if key == 'id':
@@ -33,20 +34,21 @@ class Book:
 
 
 class Library:
-    def __init__(self, safe_mode=True):
-        self.db = self.download_db()  # dict
+    def __init__(self, path_to_db, safe_mode=True):
+        self.path_to_db = path_to_db
+        self.db = self.download_db(path_to_db)  # dict
         self.save_mode = safe_mode
 
-    def download_db(self):
+    def download_db(self , path_to_db):
         books = {}
-        with open('db.txt', 'r') as db:
-            for i in db:
+        with open(path_to_db, 'r') as f:
+            for i in f:
                 book = self.create_book(i, sep='|')
                 books[book.id] = book
         return books
 
     def save_db(self):
-        with open('db.txt', 'w') as f:
+        with open(self.path_to_db, 'w') as f:
             for i in self.db:
                 f.write(f'{self.db[i].title}|{self.db[i].author}|{self.db[i].year}|{self.db[i].status}\n')
 
@@ -68,10 +70,9 @@ class Library:
         return 'Книга добавлена.'
 
     def delete_book_from_db(self, book_id):
-        if not book_id.isdigit():
-            return 'id должно быть числом.'
-        if not self.is_valid_id(book_id):
-            return 'Книги с таким id не существует.'
+        not_valid_id = self.check_valid_id(book_id)
+        if not_valid_id:
+            return not_valid_id
         book_name = self.db[int(book_id)].title
         del self.db[int(book_id)]
         if self.save_mode:
@@ -82,12 +83,15 @@ class Library:
         if '|' in title:
             return 'Название книги не должно содержать символ "|".'
         if not self.is_valid_author_name(author):
-            return 'Имя автора может состоять только из букв и символов дефис, пробел и точка.'
+            return 'Имя автора может состоять только из букв и символов: дефис, пробел и точка.'
         if not self.is_valid_year(year):
             return f'Значение год должно быть числом в промежутке от 0 до {datetime.now().year} включительно.'
 
-    def is_valid_id(self, book_id):
-        return int(book_id) in self.db
+    def check_valid_id(self, book_id):
+        if not book_id.isdigit():
+            return 'id должно быть положительным числом, больше 0.'
+        if not int(book_id) in self.db:
+            return 'Книги с таким id не существует.'
 
     @staticmethod
     def is_valid_year(year):
@@ -108,7 +112,10 @@ class Library:
         return [self.db[book_id] for book_id in self.db if year == self.db[book_id].year]
 
     def change_status_book(self, book_id):
-        res = self.db[book_id].change_status()
+        not_valid_id = self.check_valid_id(book_id)
+        if not_valid_id:
+            return not_valid_id
+        res = self.db[int(book_id)].change_status()
         if self.save_mode:
             self.save_db()
         return res
@@ -121,7 +128,9 @@ class Library:
 
 
 if __name__ == "__main__":
-    lib = Library(True)
+    sep = identify_os_sep()
+    db_name = f'..{sep}db{sep}db.txt'
+    lib = Library(db_name, True)
     print(f'{lib.show_books() = }\n')
 
     print(*lib.search_by_match('ТОЛСТОЙ', 'author'), sep='\n', end='\n\n')
