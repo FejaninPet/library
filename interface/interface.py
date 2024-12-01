@@ -26,10 +26,9 @@ def enable_save_mode():
         print('Допустимые значения 1 или 2. Попробуйте ещё раз.')
 
 
-def menu(path_to_db, save_mode, lib):
-    start = True
+def menu(lib):
     menu_length = 6
-    while start:
+    while True:
         print('''\nМЕНЮ:
         1). Отобразить список всех книг.
         2). Добавить книгу.

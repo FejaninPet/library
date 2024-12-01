@@ -7,5 +7,5 @@ if __name__ == "__main__":
     path_to_db = f'db{sep}db.txt'
     save_mode = enable_save_mode()
     lib = Library(path_to_db, save_mode)
-    menu(path_to_db, save_mode, lib)
+    menu(lib)
 
